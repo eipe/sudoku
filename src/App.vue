@@ -1,21 +1,27 @@
 <template>
   <div>
-    <template v-if="difficulityLevel === 0">
-      <h1>Select level</h1>
-      <level-selector></level-selector>
-    </template>
-    <template v-else>
-      <div style="width: 30vw; float: left;">
-        <h1>{{selectedLevel}}</h1>
-        <timer ref="timer"></timer>
-        <button v-if="valid" v-on:click="reset">Start a new one</button>
-        <button v-else v-on:click="giveUp">Give up</button>
-        <score-board></score-board>
+    <div class="hero is-fullheight has-background-grey-lighter has-text-centered text-centered">
+      <div class="hero-body">
+        <template v-if="difficulityLevel === 0">
+          <div class="container has-text-centered">
+            <h1 class="title">Select level</h1>
+            <level-selector></level-selector>
+          </div>
+        </template>
+        <template v-else>
+          <div class="container has-text-centered">
+            <h2 class="title">{{selectedLevel}}</h2>
+            <h3 class="subtitle"><timer ref="timer"></timer></h3>
+            <button class="button is-success" v-if="valid" v-on:click="reset">Start a new one</button>
+            <button class="button is-danger" v-else v-on:click="giveUp">Give up</button>
+            <score-board v-if="valid"></score-board>
+          </div>
+          <div class="container">
+            <board ref="board"></board>
+          </div>
+        </template>
       </div>
-      <div style="width: 60vw; float: left;">
-        <board ref="board"></board>
-      </div>
-    </template>
+    </div>
   </div>
 </template>
 
@@ -84,4 +90,5 @@ export default class App extends Vue {
 </script>
 
 <style lang="scss">
+
 </style>

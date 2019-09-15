@@ -1,7 +1,6 @@
 <template>
-    <div>
-        Scoreboard
-        <ol>
+    <div class="content">
+        <ol type="1">
             <li v-for="(time, index) in orderedRecords" v-bind:key="index">{{ time }} seconds</li>
         </ol>
     </div>

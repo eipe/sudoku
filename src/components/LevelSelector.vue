@@ -1,13 +1,14 @@
 <template>
     <div>
         <template v-for="(level, index) of levels">
-            <button v-on:click="selectLevel(index)" v-bind:key="index">{{level}}</button>
+            <button class="button" v-on:click="selectLevel(index)" v-bind:key="index">{{level}}</button>
         </template>
     </div>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
+
 
 @Component
 export default class LevelSelector extends Vue {
