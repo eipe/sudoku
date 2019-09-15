@@ -95,10 +95,7 @@ export default class Board extends Vue {
         const valid = this.arrayEquals(this.solutionRow, this.workingSolution);
         if (valid) {
             this.$store.dispatch('setValid', true).then(() => {
-                this.$store.dispatch('stopTimer').then(() => {
-                    this.$store.dispatch('saveRecord');
-                    this.shoutResult();
-                });
+                this.shoutResult();
             });
         }
     }

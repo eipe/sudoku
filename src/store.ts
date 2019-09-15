@@ -85,6 +85,9 @@ export default new Vuex.Store({
     setValid(context, valid: boolean) {
       return new Promise((resolve) => {
         context.commit('setValid', valid);
+        context.dispatch('stopTimer').then(() => {
+          context.dispatch('saveRecord');
+        });
         resolve();
       });
     },
