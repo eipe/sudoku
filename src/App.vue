@@ -34,9 +34,34 @@ import Board from './components/Board.vue';
 import Timer from './components/Timer.vue';
 import ScoreBoard from './components/ScoreBoard.vue';
 import LevelSelector from './components/LevelSelector.vue';
+import { Record as IRecord } from './store';
 
 // Store
 import store from './store';
+
+declare global {
+    interface Array<T> {
+        sortRecords(): T[];
+        filterRecordsByDifficulityLevel(difficulityLevel: number): T[];
+    }
+}
+
+interface Array<T> {
+    sortRecords(): T[];
+    filterRecordsByDifficulityLevel(difficulityLevel: number): T[];
+}
+
+Array.prototype.sortRecords = function() {
+    return this.sort((a: IRecord, b: IRecord) => {
+      return a.secondsSpent - b.secondsSpent;
+    });
+};
+
+Array.prototype.filterRecordsByDifficulityLevel = function(difficulityLevel: number) {
+  return this.filter((record: IRecord) => {
+      return record.difficulityLevel === difficulityLevel;
+  });
+};
 
 @Component({
   components: {
@@ -90,5 +115,4 @@ export default class App extends Vue {
 </script>
 
 <style lang="scss">
-
 </style>

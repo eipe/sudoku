@@ -1,27 +1,41 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 
-export interface IState {
+export interface Record {
+  date: Date;
+  secondsSpent: number;
+  sudoku: string;
+  difficulityLevel: number;
+}
+
+export interface State {
   gridSize: number;
   difficulityLevel: number;
   ready: boolean;
   valid: boolean;
   timeSpent: number;
-  records: number[][];
+  records: Record[];
+  sudokuHash: string | null;
 }
 
 Vue.use(Vuex);
 
 let timer: number = 0;
 
-const model: IState = {
+const model: State = {
   gridSize: 9,
   difficulityLevel: 0,
   ready: false,
   valid: false,
   timeSpent: 0,
-  records: JSON.parse(sessionStorage.getItem('records') || '{}'),
+  records: [] as Record[],
+  sudokuHash: null,
 };
+
+const storedRecords = sessionStorage.getItem('records');
+if (storedRecords) {
+  model.records = JSON.parse(storedRecords) as Record[];
+}
 
 const difficulityLevels: any = {
   1: 'Beginner',
@@ -42,10 +56,12 @@ export default new Vuex.Store({
   },
   mutations: {
     saveRecord(state) {
-      if (typeof state.records[state.difficulityLevel] === 'undefined') {
-        state.records[state.difficulityLevel] = [];
-      }
-      state.records[state.difficulityLevel].push(state.timeSpent);
+      state.records.push({
+        date: new Date(),
+        secondsSpent: state.timeSpent,
+        difficulityLevel: state.difficulityLevel,
+        sudoku: state.sudokuHash,
+      } as Record);
       sessionStorage.setItem('records', JSON.stringify(state.records));
     },
     setDifficulityLevel(state, level: number) {
@@ -54,8 +70,9 @@ export default new Vuex.Store({
     setValid(state, valid: boolean) {
       state.valid = valid;
     },
-    setReady(state, ready: boolean) {
-      state.ready = ready;
+    setReady(state, data: {ready: boolean, sudokuHash: string}) {
+      state.ready = data.ready;
+      state.sudokuHash = data.sudokuHash;
     },
     setTimeSpent(state, timeSpent: number) {
       state.timeSpent = timeSpent;
@@ -73,9 +90,6 @@ export default new Vuex.Store({
         resolve();
       });
     },
-    saveRecord(context) {
-      context.commit('saveRecord');
-    },
     setDifficulityLevel(context, level: number) {
       return new Promise((resolve) => {
         context.commit('setDifficulityLevel', level);
@@ -86,7 +100,7 @@ export default new Vuex.Store({
       return new Promise((resolve) => {
         context.commit('setValid', valid);
         context.dispatch('stopTimer').then(() => {
-          context.dispatch('saveRecord');
+          context.commit('saveRecord');
         });
         resolve();
       });

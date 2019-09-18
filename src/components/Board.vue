@@ -22,6 +22,7 @@
 <script lang="ts">
 import { Component, Prop, Vue, Watch, Emit } from 'vue-property-decorator';
 import Timer from './Timer.vue';
+import { Record as IRecord } from '../store';
 
 const MaxNumberOfErrorsException = {};
 
@@ -102,26 +103,22 @@ export default class Board extends Vue {
 
     private shoutResult(): void {
         const timeSpent = this.$store.state.timeSpent;
-        const records = this.$store.state.records[this.$store.state.difficulityLevel];
-        const sortedRecords = records.sort((a: any, b: any) => a - b);
-        const place = sortedRecords.indexOf(timeSpent) + 1;
+        const records = this.$store.state.records.filterRecordsByDifficulityLevel(
+            this.$store.state.difficulityLevel,
+        ).sortRecords();
+        let place = 0;
+        for (const recordIndex in records) {
+            if (records.hasOwnProperty(recordIndex)) {
+                if (records[recordIndex].timeSpent > timeSpent) {
+                    place = parseInt(recordIndex, 2);
+                    break;
+                }
+            }
+        }
+        place++;
         const text: string[] = [];
         text.push('You ended in place ' + place);
         text.push('Finishing in ' + timeSpent + ' seconds');
-        if (sortedRecords.length > 1) {
-            if (place === 1) {
-                const secondsToPreviousRecord = sortedRecords[1] - timeSpent;
-                text.push(secondsToPreviousRecord + ' seconds faster than previous record');
-            } else if (place > 1) {
-                const secondsFromFirstPlace = timeSpent - sortedRecords[0];
-                let firstPlaceText = '';
-                if (secondsFromFirstPlace < 10) {
-                firstPlaceText += 'Only ';
-                }
-                firstPlaceText += secondsFromFirstPlace + ' seconds behind the record';
-                text.push(firstPlaceText);
-            }
-        }
         alert(text.join('. '));
     }
 
@@ -312,7 +309,13 @@ export default class Board extends Vue {
             this.workingSolution[parseInt(row, 10)][parseInt(column, 10)] = null;
         });
 
-        this.$store.dispatch('setReady', true).then(() => {
+        this.$store.dispatch(
+            'setReady',
+            {
+                ready: true,
+                sudokuHash: this.solutionRow.toString().replace(/,/g, ''),
+            },
+        ).then(() => {
             this.$store.dispatch('startTimer');
         });
     }
